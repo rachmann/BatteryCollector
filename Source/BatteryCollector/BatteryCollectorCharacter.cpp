@@ -58,7 +58,7 @@ void ABatteryCollectorCharacter::SetupPlayerInputComponent(class UInputComponent
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-    // bind action to C keyrpress
+    // bind collection of pickups action to C keyrpress
     InputComponent->BindAction("Collect", IE_Pressed, this, &ABatteryCollectorCharacter::CollectPickups);
     
 	InputComponent->BindAxis("MoveForward", this, &ABatteryCollectorCharacter::MoveForward);
