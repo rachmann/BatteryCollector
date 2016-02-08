@@ -3,6 +3,7 @@
 #include "BatteryCollector.h"
 #include "BatteryCollectorCharacter.h"
 #include "Pickup.h"
+#include "BatteryPickup.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABatteryCollectorCharacter
@@ -46,6 +47,16 @@ ABatteryCollectorCharacter::ABatteryCollectorCharacter()
     
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+    
+    // set a base power level for the character
+    InitialPower = 2000.0f;
+    CharacterPower = InitialPower;
+    
+    // set the dependents of speed on the power level
+    SpeedFactor = 0.75f;
+    BaseSpeed= 10.0f;
+    
+    
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,10 +155,13 @@ void ABatteryCollectorCharacter::CollectPickups()
     TArray<AActor *> CollectedActors;
     CollectionSphere->GetOverlappingActors(CollectedActors);
     
+    // variable to keep track of the collected power
+    float CollectedPower = 0.0f;
+    
     //foreach Actor we collect
     for(int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected)
     {
-        //  cast the Ator to a pickup
+        //  cast the Actor to a pickup
         APickup* const TestPickup = Cast<APickup>(CollectedActors[iCollected]);
     
         // if the cast is successfull and the pickup is valid and active
@@ -156,8 +170,52 @@ void ABatteryCollectorCharacter::CollectPickups()
             // then call the pickup's WasCollected function
             TestPickup->WasCollected();
         
+            // check to see if the pickup is also a battery
+            ABatteryPickup* const TestBattery = Cast<ABatteryPickup>(TestPickup);
+            if(TestBattery)
+            {
+                // increase the collected power
+                CollectedPower += TestBattery->GetPower();
+            }
+            
             // deactive the pickup
             TestPickup->SetActive(false);
+    
+        }
+    
     }
+    
+    if(CollectedPower > 0)
+    {
+        UpdatePower(CollectedPower);
     }
 }
+
+// reports starting power
+float ABatteryCollectorCharacter::GetInitialPower()
+{
+    return InitialPower;
+}
+
+//reports current power
+float ABatteryCollectorCharacter::GetCurrentPower()
+{
+    return CharacterPower;
+}
+
+// Called whenever power is increased or decreased
+void ABatteryCollectorCharacter::UpdatePower(float PowerChange)
+{
+    // Change power
+    CharacterPower += PowerChange;
+    
+    // Change Speed Based on Changed Power
+    GetCharacterMovement()->MaxWalkSpeed = BaseSpeed + SpeedFactor* CharacterPower;
+    
+    // call the visual effect of power change
+    PowerChangeEffect();
+}
+
+
+
+

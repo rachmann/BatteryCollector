@@ -29,7 +29,21 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
-
+    
+    
+    //accessor function for initial power
+    UFUNCTION(BluePrintPure, Category = "Power")
+    float GetInitialPower();
+    // accessor function for current power
+    UFUNCTION(BluePrintPure, Category = "Power")
+    float GetCurrentPower();
+    
+    // function to update the character's power
+    //  @param PowerChange This is the amount to change power by and be possitive or negative
+    UFUNCTION(BlueprintCallable, Category = "Power")
+    void UpdatePower(float PowerChange);
+    
+    
 protected:
 
 	/** Called for forwards/backward input */
@@ -56,6 +70,8 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+    
+    
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
@@ -65,6 +81,27 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Pickups")
     void CollectPickups();
     
+    // the starting power level of the player character
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", meta = (BlueprintProtected = "true"))
+    float InitialPower;
+    
+    // the Multiplier for character speed
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", meta = (BlueprintProtected = "true"))
+    float SpeedFactor;
+    
+    // speed when the powere level is zero
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", meta = (BlueprintProtected = "true"))
+    float BaseSpeed;
+    
+    
+    UFUNCTION(BlueprintImplementableEvent, Category = "Power")
+    void PowerChangeEffect();
+    
+private:
+    
+    //current power level of character
+    UPROPERTY(VisibleAnywhere, Category = "Power")
+    float CharacterPower;
 
 public:
 	/** Returns CameraBoom subobject **/
