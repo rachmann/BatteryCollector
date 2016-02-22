@@ -62,6 +62,9 @@ private:
     // keeps track of current play state
     EBatteryPlayState CurrentState;
     
+    // Collection of spawn volumes
+    TArray<class ASpawnVolume*> SpawnVolumeActors;
+    
 };
 
 
