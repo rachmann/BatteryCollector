@@ -64,7 +64,9 @@ private:
     
     // Collection of spawn volumes
     TArray<class ASpawnVolume*> SpawnVolumeActors;
-    
+  
+    // this will handle any function calls that rely upon changing the playing state of our game
+    void HandleNewState(EBatteryPlayState NewState);
 };
 
 

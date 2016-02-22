@@ -95,5 +95,85 @@ EBatteryPlayState ABatteryCollectorGameMode::GetCurrentState() const
 
 void ABatteryCollectorGameMode::SetCurrentState(EBatteryPlayState NewState)
 {
+    // Set Current State
     CurrentState = NewState;
+    // Handle the new current state
+    HandleNewState(CurrentState);
+}
+
+void ABatteryCollectorGameMode::HandleNewState(EBatteryPlayState NewState)
+{
+
+    
+    switch (NewState) {
+        case EBatteryPlayState::EPlaying :
+            
+            // If the game is playing
+            //
+            // spawn volume active
+            for (ASpawnVolume* Volume : SpawnVolumeActors) {
+                Volume->SetSpawningActive(true);
+            }
+            
+            break;
+        case EBatteryPlayState::EWon :
+            
+            // if we won the game
+            //
+            // spawn volume inactive
+            for (ASpawnVolume* Volume : SpawnVolumeActors) {
+                Volume->SetSpawningActive(false);
+            }
+            
+            
+            break;
+        case EBatteryPlayState::EGameOver :
+        {
+            // If we lost
+            //
+            // spawn volume inactive
+            // block player input
+            // ragdoll the character
+            for (ASpawnVolume* Volume : SpawnVolumeActors) {
+                Volume->SetSpawningActive(false);
+            }
+            
+            APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+            if(PlayerController)
+            {
+                PlayerController->SetCinematicMode(true, false, false, true, true);
+                
+                UE_LOG(LogClass, Log, TEXT("You have set Cinematic Mode"));
+
+            }
+            else
+            {
+                UE_LOG(LogClass, Log, TEXT("Player Controller was invalid!!"));
+            }
+
+            // now ragdoll the character
+            ACharacter* MyCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+            if(MyCharacter)
+            {
+                MyCharacter->GetMesh()->SetSimulatePhysics(true);
+                MyCharacter->GetMovementComponent()->MovementState.bCanJump=false;
+                
+                UE_LOG(LogClass, Log, TEXT("ACharacter jump turned off and Set Simulate Physics on"));
+            }else
+            {
+                UE_LOG(LogClass, Log, TEXT("ACharacter was invalid!! (EGameOver State in HandleNewState"));
+
+            }
+        }
+            
+            break;
+            
+        default :
+
+            // unknown state - incase some code forgets to call
+            //
+            // use to help debug
+            
+            break;
+    }
 }
